@@ -6,6 +6,7 @@ import PeoplePage from "./pages/PeoplePage";
 import PersonDetail from "./pages/PersonDetail";
 import LocationsPage from "./pages/LocationsPage";
 import LocationDetail from "./pages/LocationDetail";
+import Modal from "./components/layout/Modal";
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
             }
           />
         </Routes>
+        <Modal />
       </main>
     </div>
   );
