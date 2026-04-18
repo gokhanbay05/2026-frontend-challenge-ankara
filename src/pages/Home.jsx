@@ -31,7 +31,6 @@ export default function Home() {
 
   return (
     <PageLayout loading={isLoading} error={error} onRetry={fetchData}>
-      {/* MASKOT ANIMASYONU ICIN GROUP CLASSI EKLENDI */}
       <div className="relative mb-12 rounded-ui overflow-hidden bg-primary text-primary-foreground p-8 md:p-12 shadow-2xl group">
         <div className="relative z-10 space-y-4">
           <span className="bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest animate-pulse">
@@ -46,7 +45,6 @@ export default function Home() {
           </p>
         </div>
 
-        {/* MASKOT - ANIMASYON EFEKTLERIYLE */}
         <div className="absolute right-[-10px] bottom-[-10px] z-0 w-52 md:w-80 pointer-events-none select-none">
           <img
             src={PodoMaskot}
