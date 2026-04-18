@@ -5,6 +5,7 @@ import HorizontalCard from "../components/ui/HorizontalCard";
 import SummaryCard from "../components/ui/SummaryCard";
 import EventDetailView from "../components/views/EventDetailView";
 import { getEventIcon, getEventDescription } from "../utils/eventHelpers";
+import PodoMaskot from "../assets/PodoAIVoiceWrite.png";
 import {
   StickyNote,
   MapPin,
@@ -30,7 +31,8 @@ export default function Home() {
 
   return (
     <PageLayout loading={isLoading} error={error} onRetry={fetchData}>
-      <div className="relative mb-12 rounded-ui overflow-hidden bg-primary text-primary-foreground p-8 md:p-12 shadow-2xl">
+      {/* MASKOT ANIMASYONU ICIN GROUP CLASSI EKLENDI */}
+      <div className="relative mb-12 rounded-ui overflow-hidden bg-primary text-primary-foreground p-8 md:p-12 shadow-2xl group">
         <div className="relative z-10 space-y-4">
           <span className="bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest animate-pulse">
             Live Investigation
@@ -43,7 +45,17 @@ export default function Home() {
             the truth.
           </p>
         </div>
+
+        {/* MASKOT - ANIMASYON EFEKTLERIYLE */}
+        <div className="absolute right-[-10px] bottom-[-10px] z-0 w-52 md:w-80 pointer-events-none select-none">
+          <img
+            src={PodoMaskot}
+            alt="Podo Mascot"
+            className="w-full h-full object-contain drop-shadow-[-15px_15px_40px_rgba(0,0,0,0.5)] transform -rotate-3 group-hover:rotate-0 group-hover:scale-105 transition-all duration-700 ease-out"
+          />
+        </div>
       </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
         <SummaryCard
           title="Total Evidence"
