@@ -4,17 +4,20 @@ import useAppStore from "../store/useAppStore";
 import PageLayout from "../components/layout/PageLayout";
 import HorizontalCard from "../components/ui/HorizontalCard";
 import Button from "../components/ui/Button";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, User, Activity } from "lucide-react";
 import MessageThreadView from "../components/views/MessageThreadView";
+import EventDetailView from "../components/views/EventDetailView";
+import { getEventIcon } from "../utils/eventHelpers";
 
 export default function PersonDetail() {
   const { name } = useParams();
   const decodedName = decodeURIComponent(name);
   const { events, isLoading, error } = useAppStore();
 
+  // Kişiye özel olayları filtrele (Normalize edilmiş isim üzerinden güvenli eşleşme)
   const personEvents = useMemo(() => {
-    return events.filter((ev) =>
-      [
+    return events.filter((ev) => {
+      const allNamesInEvent = [
         ev.personName,
         ev.senderName,
         ev.recipientName,
@@ -22,10 +25,13 @@ export default function PersonDetail() {
         ev.authorName,
         ev.mentionedPeople,
         ev.suspectName,
-      ].includes(decodedName),
-    );
+      ].join(", ");
+
+      return allNamesInEvent.includes(decodedName);
+    });
   }, [events, decodedName]);
 
+  // Mesajlaştığı kişileri çıkar
   const contacts = useMemo(() => {
     const contactSet = new Set();
     personEvents.forEach((ev) => {
@@ -47,48 +53,75 @@ export default function PersonDetail() {
     MessageThreadView.open(thread, decodedName, contactName);
   };
 
+  const getCustomDescription = (ev) => {
+    switch (ev.type) {
+      case "checkins":
+        return `${ev.location} konumuna giriş yaptı.`;
+      case "messages":
+        return ev.senderName === decodedName
+          ? `${ev.recipientName} kişisine mesaj gönderdi.`
+          : `${ev.senderName} kişisinden mesaj aldı.`;
+      case "sightings":
+        return `${ev.seenWith} ile ${ev.location} civarında görüldü.`;
+      case "notes":
+        return ev.authorName === decodedName
+          ? `Sistemde kendi adına not paylaştı.`
+          : `Dosyasına yeni bir not eklendi.`;
+      case "tips":
+        return `Şüpheli sıfatıyla ihbar edildi.`;
+      default:
+        return "Aktivite kaydedildi.";
+    }
+  };
+
   return (
     <PageLayout
       title={decodedName}
-      description="Soruşturma Dosyası ve İlişki Analizi"
+      description="Şüpheli Profil ve İlişki Analizi"
       showBackButton={true}
       loading={isLoading}
       error={error}
     >
-      <div className="flex flex-col md:flex-row gap-8">
-        <div className="w-full md:w-1/3 space-y-6">
-          <div className="bg-muted/20 p-6 rounded-ui border border-border/50 flex flex-col items-center text-center">
-            <img
-              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${decodedName}`}
-              alt={decodedName}
-              className="w-32 h-32 bg-background rounded-full shadow-soft border-4 border-primary/20 mb-4"
-            />
-            <h2 className="text-2xl font-bold">{decodedName}</h2>
-            <p className="text-sm text-muted-foreground mt-1 font-medium">
-              {personEvents.length} Kayıt Bulundu
-            </p>
+      <div className="flex flex-col lg:flex-row gap-12">
+        {/* SOL PANEL: Profil Bilgisi */}
+        <div className="w-full lg:w-1/3 space-y-8">
+          <div className="relative group">
+            <div className="absolute inset-0 bg-primary/10 blur-2xl rounded-full group-hover:bg-primary/20 transition-all" />
+            <div className="relative bg-background border border-border/50 p-8 rounded-ui flex flex-col items-center text-center shadow-soft">
+              <img
+                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${decodedName}`}
+                alt={decodedName}
+                className="w-40 h-40 bg-muted rounded-full border-4 border-background shadow-xl mb-6"
+              />
+              <h2 className="text-3xl font-black tracking-tight">
+                {decodedName}
+              </h2>
+              <div className="flex items-center gap-2 mt-2 px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase rounded-full">
+                <Activity size={12} /> {personEvents.length} Kayıtlı İz
+              </div>
+            </div>
           </div>
 
           {contacts.length > 0 && (
             <div className="space-y-4">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-primary border-b border-border/40 pb-2">
-                İletişim Kurduğu Kişiler
+              <h3 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2 px-1">
+                <MessageCircle size={16} /> İletişim Ağı
               </h3>
-              <div className="flex flex-col gap-2">
+              <div className="grid gap-2">
                 {contacts.map((contact, idx) => (
                   <Button
                     key={idx}
                     variant="secondary"
-                    className="w-full justify-between py-3"
+                    className="w-full justify-between py-2 px-4 hover:border-primary/50"
                     onClick={() => handleOpenChat(contact)}
                   >
-                    <span className="flex items-center gap-2">
+                    <span className="flex items-center gap-3">
                       <img
                         src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${contact}`}
-                        className="w-6 h-6 rounded-full bg-background"
-                        alt={contact}
+                        className="w-8 h-8 rounded-full bg-background border"
+                        alt=""
                       />
-                      {contact}
+                      <span className="font-bold">{contact}</span>
                     </span>
                   </Button>
                 ))}
@@ -97,50 +130,35 @@ export default function PersonDetail() {
           )}
         </div>
 
-        <div className="w-full md:w-2/3 space-y-4">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-primary border-b border-border/40 pb-2 mb-6">
-            Zaman Çizelgesi & Kanıtlar
+        {/* SAĞ PANEL: Kişiye Özel Timeline */}
+        <div className="w-full lg:w-2/3 space-y-6">
+          <h3 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2 px-1">
+            <User size={16} /> Dosya Geçmişi
           </h3>
-          <div className="relative border-l-2 border-border/50 ml-2 pl-6 space-y-6">
-            {personEvents.map((event, index) => {
-              let title = "";
-              let desc = "";
 
-              if (event.type === "checkins") {
-                title = "Lokasyon Check-in";
-                desc = event.note || "Mevcudiyet bildirildi.";
-              } else if (event.type === "messages") {
-                title =
-                  event.senderName === decodedName
-                    ? `Mesaj Gönderildi`
-                    : `Mesaj Alındı`;
-                desc = `İlgili kişi: ${event.senderName === decodedName ? event.recipientName : event.senderName}`;
-              } else if (event.type === "sightings") {
-                title = "Gözlem Kaydı";
-                desc = `${event.seenWith} ile birlikte görüldü. Not: ${event.note}`;
-              } else if (event.type === "notes") {
-                title =
-                  event.authorName === decodedName
-                    ? "Kişisel Not Düştü"
-                    : "Hakkında Not Alındı";
-                desc = event.note;
-              } else if (event.type === "tips") {
-                title = "İsimsiz İhbar";
-                desc = `Şüpheli durum bildirildi: ${event.tip}`;
-              }
-
+          <div className="relative border-l-2 border-border/50 ml-4 pl-8 space-y-8">
+            {personEvents.map((ev, index) => {
+              const { icon: Icon, color, label } = getEventIcon(ev.type);
               return (
-                <div key={index} className="relative group">
-                  <div className="absolute -left-[29px] top-1 w-3 h-3 bg-muted border border-border rounded-full group-hover:scale-125 group-hover:bg-primary transition-all duration-300" />
-                  <div className="text-[11px] font-bold text-primary mb-1 uppercase tracking-tighter">
-                    {event.timestamp} @ {event.location}
+                <div key={index} className="relative">
+                  <div className="absolute -left-[49px] top-4 w-10 h-10 bg-background border-2 border-border rounded-full flex items-center justify-center z-10 shadow-sm">
+                    <Icon size={20} className={color} />
                   </div>
+
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs font-black text-primary uppercase tracking-tighter bg-primary/5 px-2 py-0.5 rounded">
+                      {ev.timestamp}
+                    </span>
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase">
+                      @{ev.location}
+                    </span>
+                  </div>
+
                   <HorizontalCard
-                    title={title}
-                    description={desc}
-                    isCompact={true}
-                    bVariant="ghost"
-                    buttonText={event.type.replace("s", "").toUpperCase()}
+                    title={`${label}: ${ev.location}`}
+                    description={getCustomDescription(ev)}
+                    buttonText="KANIT"
+                    onButtonClick={() => EventDetailView.open(ev)}
                   />
                 </div>
               );
