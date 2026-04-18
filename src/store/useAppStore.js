@@ -10,12 +10,34 @@ const FORM_IDS = {
   tips: "261065875889981",
 };
 
-const extractAnswers = (data, type) => {
-  return data.content.map((item) => {
-    const answers = item.answers;
-    const parsed = { id: item.id, type };
+const normalizeName = (name) => {
+  if (!name) return "";
+  return name
+    .trim()
+    .replace(/İ/g, "i")
+    .replace(/I/g, "ı")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\b\w/g, (l) => l.toUpperCase());
+};
+
+const splitAndCleanNames = (nameString) => {
+  if (!nameString) return [];
+  return nameString
+    .split(",")
+    .map((n) => normalizeName(n))
+    .filter((n) => n.length > 0);
+};
+
+const extractAnswers = (res, type) => {
+  if (!res?.data || !Array.isArray(res.data.content)) return [];
+
+  return res.data.content.map((item) => {
+    const answers = item.answers || {};
+    const parsed = { id: item.id, type, createdAt: item.created_at };
     Object.values(answers).forEach((ans) => {
-      if (ans.name && ans.answer) {
+      if (ans.name && ans.answer !== undefined) {
         parsed[ans.name] = ans.answer;
       }
     });
@@ -31,52 +53,59 @@ const useAppStore = create((set) => ({
   error: null,
 
   fetchData: async () => {
-    set({ isLoading: true, error: null });
+    set({ isLoading: true });
     try {
-      const endpoints = Object.entries(FORM_IDS).map(([, id]) =>
-        api.get(`/form/${id}/submissions`),
+      const endpoints = Object.entries(FORM_IDS).map(([id]) =>
+        api
+          .get(`/form/${id}/submissions`)
+          .catch(() => ({ data: { content: [] } })),
       );
 
       const results = await Promise.all(endpoints);
       const types = Object.keys(FORM_IDS);
-
       let allEvents = [];
+
       results.forEach((res, index) => {
-        const parsedData = extractAnswers(res.data, types[index]);
-        allEvents = [...allEvents, ...parsedData];
+        allEvents = [...allEvents, ...extractAnswers(res, types[index])];
       });
 
       const sortedEvents = allEvents.sort((a, b) => {
         if (!a.timestamp || !b.timestamp) return 0;
-        const dateA =
-          a.timestamp.split(" ")[0].split("-").reverse().join("-") +
-          "T" +
-          a.timestamp.split(" ")[1];
-        const dateB =
-          b.timestamp.split(" ")[0].split("-").reverse().join("-") +
-          "T" +
-          b.timestamp.split(" ")[1];
-        return new Date(dateA) - new Date(dateB);
+        const [date, time] = a.timestamp.split(" ");
+        const [day, month, year] = date.split("-");
+        const [bDate, bTime] = b.timestamp.split(" ");
+        const [bDay, bMonth, bYear] = bDate.split("-");
+        return (
+          new Date(`${year}-${month}-${day}T${time}`) -
+          new Date(`${bYear}-${bMonth}-${bDay}T${bTime}`)
+        );
       });
 
       const peopleSet = new Set();
       const locationsSet = new Set();
 
       sortedEvents.forEach((ev) => {
-        if (ev.location) locationsSet.add(ev.location);
-        if (ev.personName) peopleSet.add(ev.personName);
-        if (ev.senderName) peopleSet.add(ev.senderName);
-        if (ev.recipientName) peopleSet.add(ev.recipientName);
-        if (ev.seenWith) peopleSet.add(ev.seenWith);
-        if (ev.authorName) peopleSet.add(ev.authorName);
-        if (ev.mentionedPeople) peopleSet.add(ev.mentionedPeople);
-        if (ev.suspectName) peopleSet.add(ev.suspectName);
+        if (ev.location) locationsSet.add(ev.location.trim());
+
+        const possibleNameFields = [
+          ev.personName,
+          ev.senderName,
+          ev.recipientName,
+          ev.seenWith,
+          ev.authorName,
+          ev.mentionedPeople,
+          ev.suspectName,
+        ];
+
+        possibleNameFields.forEach((field) => {
+          splitAndCleanNames(field).forEach((name) => peopleSet.add(name));
+        });
       });
 
       set({
         events: sortedEvents,
-        people: Array.from(peopleSet),
-        locations: Array.from(locationsSet),
+        people: Array.from(peopleSet).sort(),
+        locations: Array.from(locationsSet).sort(),
       });
     } catch (err) {
       set({ error: err.message });

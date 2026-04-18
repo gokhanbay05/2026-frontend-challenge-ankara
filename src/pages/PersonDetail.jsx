@@ -90,7 +90,6 @@ export default function PersonDetail() {
                       />
                       {contact}
                     </span>
-                    <MessageCircle size={16} className="text-primary" />
                   </Button>
                 ))}
               </div>
