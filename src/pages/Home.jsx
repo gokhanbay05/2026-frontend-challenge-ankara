@@ -1,84 +1,102 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import useAppStore from "../store/useAppStore";
 import PageLayout from "../components/layout/PageLayout";
 import HorizontalCard from "../components/ui/HorizontalCard";
+import SummaryCard from "../components/ui/SummaryCard";
+import EventDetailView from "../components/views/EventDetailView";
+import { getEventIcon, getEventDescription } from "../utils/eventHelpers";
+import {
+  StickyNote,
+  MapPin,
+  AlertCircle,
+  UserSearch,
+  Clock,
+} from "lucide-react";
 
 export default function Home() {
   const { events, isLoading, error, fetchData } = useAppStore();
 
   useEffect(() => {
-    if (events.length === 0) {
-      fetchData();
-    }
+    if (events.length === 0) fetchData();
   }, [fetchData, events.length]);
 
-  const getEventDetails = (event) => {
-    switch (event.type) {
-      case "checkins":
-        return {
-          title: `Check-in: ${event.personName} @ ${event.location}`,
-          description: event.note || "Ek bilgi yok",
-        };
-      case "messages":
-        return {
-          title: `Mesaj: ${event.senderName} -> ${event.recipientName}`,
-          description: `"${event.text}" (Lokasyon: ${event.location})`,
-        };
-      case "sightings":
-        return {
-          title: `Gözlem: ${event.personName}, ${event.seenWith} ile görüldü`,
-          description: `Lokasyon: ${event.location} | ${event.note || ""}`,
-        };
-      case "notes":
-        return {
-          title: `Kişisel Not: ${event.authorName} @ ${event.location}`,
-          description: event.note || "Detay yok",
-        };
-      case "tips":
-        return {
-          title: `İhbar: Şüpheli ${event.suspectName} @ ${event.location}`,
-          description: event.tip || "Detay yok",
-        };
-      default:
-        return { title: "Bilinmeyen Olay", description: "" };
-    }
-  };
+  const stats = useMemo(() => {
+    if (events.length === 0) return null;
+    return {
+      total: events.length,
+      lastLoc: events[events.length - 1].location,
+    };
+  }, [events]);
 
   return (
-    <PageLayout
-      title="Timeline: Olay Örgüsü"
-      description="Podo'nun kayboluşuyla ilgili tüm kayıtların kronolojik sıralaması."
-      loading={isLoading}
-      error={error}
-      onRetry={fetchData}
-    >
-      <div className="relative border-l-2 border-primary/30 ml-4 pl-6 space-y-4 py-4">
-        {events.map((event, index) => {
-          const { title, description } = getEventDetails(event);
-          return (
-            <div key={`${event.id}-${index}`} className="relative group">
-              <div className="absolute -left-[31px] top-5 w-3 h-3 bg-background border-2 border-primary rounded-full group-hover:scale-150 group-hover:bg-primary transition-all duration-300" />
+    <PageLayout loading={isLoading} error={error} onRetry={fetchData}>
+      {/* Hero Section */}
+      <div className="relative mb-12 rounded-ui overflow-hidden bg-primary text-primary-foreground p-8 md:p-12 shadow-2xl">
+        <div className="relative z-10 space-y-4">
+          <span className="bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest animate-pulse">
+            Canlı Soruşturma
+          </span>
+          <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase">
+            Vaka: Podo Kayıp
+          </h1>
+          <p className="max-w-xl text-primary-foreground/70 italic font-medium leading-relaxed">
+            Dijital ayak izlerini takip et, ipuçlarını birleştir ve gerçeği
+            ortaya çıkar.
+          </p>
+        </div>
+      </div>
 
-              <div className="mb-1 text-xs font-bold text-primary tracking-wider">
-                {event.timestamp}
+      {/* Stats Summary */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+        <SummaryCard
+          title="Toplam Kanıt"
+          value={stats?.total}
+          icon={StickyNote}
+          colorClass="text-blue-500"
+        />
+        <SummaryCard
+          title="Son Bilinen Konum"
+          value={stats?.lastLoc}
+          icon={MapPin}
+          colorClass="text-red-500"
+        />
+        <SummaryCard
+          title="Vaka Önceliği"
+          value="Kritik"
+          icon={AlertCircle}
+          colorClass="text-amber-500"
+        />
+        <SummaryCard
+          title="Mevcut Durum"
+          value="Aranıyor"
+          icon={UserSearch}
+          colorClass="text-primary"
+        />
+      </div>
+
+      {/* Timeline */}
+      <div className="space-y-8">
+        <h3 className="text-xl font-black flex items-center gap-2 uppercase tracking-tight">
+          <Clock className="text-primary" /> Olay Akışı
+        </h3>
+        <div className="relative border-l-2 border-primary/20 ml-6 pl-8 space-y-6 py-2">
+          {events.map((ev, idx) => {
+            const { icon: Icon, color, label } = getEventIcon(ev.type);
+            return (
+              <div key={idx} className="relative group">
+                <div className="absolute -left-[45px] top-4 w-8 h-8 bg-background border border-border shadow-soft rounded-full flex items-center justify-center z-10 group-hover:border-primary transition-colors">
+                  <Icon size={18} className={color} />
+                </div>
+                <HorizontalCard
+                  title={`${label}: ${ev.location}`}
+                  description={getEventDescription(ev)}
+                  buttonText="İNCELE"
+                  onButtonClick={() => EventDetailView.open(ev)}
+                />
               </div>
-
-              <HorizontalCard
-                title={title}
-                description={description}
-                buttonText="İncele"
-                bVariant="outline"
-                onButtonClick={() => console.log("Detay:", event)}
-              />
-            </div>
-          );
-        })}
-
-        {events.length === 0 && !isLoading && !error && (
-          <div className="text-center py-10 opacity-50">
-            Veritabanında hiçbir kayıt bulunamadı.
-          </div>
-        )}
+            );
+          })}
+        </div>
       </div>
     </PageLayout>
   );

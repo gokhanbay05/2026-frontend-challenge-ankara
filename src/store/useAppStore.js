@@ -11,7 +11,7 @@ const FORM_IDS = {
 };
 
 const normalizeName = (name) => {
-  if (!name) return "";
+  if (!name || typeof name !== "string") return "";
   return name
     .trim()
     .replace(/İ/g, "i")
@@ -23,21 +23,20 @@ const normalizeName = (name) => {
 };
 
 const splitAndCleanNames = (nameString) => {
-  if (!nameString) return [];
+  if (!nameString || typeof nameString !== "string") return [];
   return nameString
     .split(",")
     .map((n) => normalizeName(n))
     .filter((n) => n.length > 0);
 };
 
-const extractAnswers = (res, type) => {
-  if (!res?.data || !Array.isArray(res.data.content)) return [];
-
-  return res.data.content.map((item) => {
+const extractAnswers = (data, type) => {
+  if (!data?.content) return [];
+  return data.content.map((item) => {
     const answers = item.answers || {};
-    const parsed = { id: item.id, type, createdAt: item.created_at };
+    const parsed = { id: item.id, type };
     Object.values(answers).forEach((ans) => {
-      if (ans.name && ans.answer !== undefined) {
+      if (ans.name && ans.answer) {
         parsed[ans.name] = ans.answer;
       }
     });
@@ -53,9 +52,9 @@ const useAppStore = create((set) => ({
   error: null,
 
   fetchData: async () => {
-    set({ isLoading: true });
+    set({ isLoading: true, error: null });
     try {
-      const endpoints = Object.entries(FORM_IDS).map(([id]) =>
+      const endpoints = Object.entries(FORM_IDS).map(([key, id]) =>
         api
           .get(`/form/${id}/submissions`)
           .catch(() => ({ data: { content: [] } })),
@@ -66,19 +65,21 @@ const useAppStore = create((set) => ({
       let allEvents = [];
 
       results.forEach((res, index) => {
-        allEvents = [...allEvents, ...extractAnswers(res, types[index])];
+        const parsedData = extractAnswers(res.data, types[index]);
+        allEvents = [...allEvents, ...parsedData];
       });
 
       const sortedEvents = allEvents.sort((a, b) => {
         if (!a.timestamp || !b.timestamp) return 0;
-        const [date, time] = a.timestamp.split(" ");
-        const [day, month, year] = date.split("-");
-        const [bDate, bTime] = b.timestamp.split(" ");
-        const [bDay, bMonth, bYear] = bDate.split("-");
-        return (
-          new Date(`${year}-${month}-${day}T${time}`) -
-          new Date(`${bYear}-${bMonth}-${bDay}T${bTime}`)
-        );
+        const dateA =
+          a.timestamp.split(" ")[0].split("-").reverse().join("-") +
+          "T" +
+          a.timestamp.split(" ")[1];
+        const dateB =
+          b.timestamp.split(" ")[0].split("-").reverse().join("-") +
+          "T" +
+          b.timestamp.split(" ")[1];
+        return new Date(dateA) - new Date(dateB);
       });
 
       const peopleSet = new Set();
@@ -87,7 +88,7 @@ const useAppStore = create((set) => ({
       sortedEvents.forEach((ev) => {
         if (ev.location) locationsSet.add(ev.location.trim());
 
-        const possibleNameFields = [
+        const nameFields = [
           ev.personName,
           ev.senderName,
           ev.recipientName,
@@ -97,7 +98,7 @@ const useAppStore = create((set) => ({
           ev.suspectName,
         ];
 
-        possibleNameFields.forEach((field) => {
+        nameFields.forEach((field) => {
           splitAndCleanNames(field).forEach((name) => peopleSet.add(name));
         });
       });
