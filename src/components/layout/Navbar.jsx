@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { NavLink, Link } from "react-router-dom";
+import ThemeToggle from "../ui/ThemeToggle.jsx";
 import { Menu, X } from "lucide-react";
 
 const navLinks = [
@@ -47,6 +48,7 @@ export default function Navbar({ title }) {
             </div>
 
             <div className="flex items-center gap-2">
+              <ThemeToggle />
               <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="md:hidden p-2 text-muted-foreground hover:text-foreground transition-colors"

@@ -7,8 +7,16 @@ import PersonDetail from "./pages/PersonDetail";
 import LocationsPage from "./pages/LocationsPage";
 import LocationDetail from "./pages/LocationDetail";
 import Modal from "./components/layout/Modal";
+import useThemeStore from "./store/useThemeStore.js";
+import { useEffect } from "react";
 
 export default function App() {
+  const { initTheme } = useThemeStore();
+
+  useEffect(() => {
+    initTheme();
+  }, [initTheme]);
+
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
       <Toaster position="top-center" />
