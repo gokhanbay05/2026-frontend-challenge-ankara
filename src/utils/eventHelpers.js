@@ -35,34 +35,34 @@ export const getEventDescription = (
   switch (ev.type) {
     case "checkins":
       return isPerson
-        ? `Checked into ${ev.location}.`
-        : `${ev.personName} checked into the location.`;
+        ? `${ev.location} konumuna giriş yaptı.`
+        : `${ev.personName} mekana giriş yaptı.`;
 
     case "messages":
       if (isPerson) {
         return ev.senderName === contextName
-          ? `Sent a message to ${ev.recipientName}.`
-          : `Received a message from ${ev.senderName}.`;
+          ? `${ev.recipientName} kişisine mesaj gönderdi.`
+          : `${ev.senderName} kişisinden mesaj aldı.`;
       }
-      return `${ev.senderName} -> ${ev.recipientName} (Message delivered)`;
+      return `${ev.senderName} -> ${ev.recipientName} (Mesaj iletildi)`;
 
     case "sightings":
       if (isLocation)
-        return `${ev.personName} and ${ev.seenWith} were seen here.`;
-      return `${ev.personName} was seen with ${ev.seenWith} around ${ev.location}.`;
+        return `${ev.personName} ve ${ev.seenWith} burada görüldü.`;
+      return `${ev.personName}, ${ev.seenWith} ile ${ev.location} civarında görüldü.`;
 
     case "notes": {
       const author =
-        ev.authorName === contextName ? "On their own behalf" : ev.authorName;
-      return `${author} left a note: "${ev.note}"`;
+        ev.authorName === contextName ? "Kendi adına" : ev.authorName;
+      return `${author} bir not düştü: "${ev.note}"`;
     }
 
     case "tips":
       return isPerson
-        ? "Reported as a suspect."
-        : `A tip was submitted regarding ${ev.suspectName}.`;
+        ? "Şüpheli sıfatıyla ihbar edildi."
+        : `${ev.suspectName} hakkında ihbar yapıldı.`;
 
     default:
-      return ev.note || ev.text || ev.tip || "Activity recorded.";
+      return ev.note || ev.text || ev.tip || "Aktivite kaydedildi.";
   }
 };
