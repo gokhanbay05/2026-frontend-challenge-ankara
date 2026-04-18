@@ -1,12 +1,12 @@
 import axios from "axios";
 
-const API_KEY = "ad39735f1449a6dc28d60e0921352665";
+const API_KEY = "5593acd695caab1a3805c3af8532df09";
 
 const api = axios.create({
   baseURL: "https://api.jotform.com",
   timeout: 10000,
-  headers: {
-    APIKEY: API_KEY,
+  params: {
+    apiKey: API_KEY,
   },
 });
 
