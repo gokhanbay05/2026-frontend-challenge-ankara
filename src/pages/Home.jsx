@@ -30,7 +30,6 @@ export default function Home() {
 
   return (
     <PageLayout loading={isLoading} error={error} onRetry={fetchData}>
-      {/* Hero Section */}
       <div className="relative mb-12 rounded-ui overflow-hidden bg-primary text-primary-foreground p-8 md:p-12 shadow-2xl">
         <div className="relative z-10 space-y-4">
           <span className="bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest animate-pulse">
@@ -45,8 +44,6 @@ export default function Home() {
           </p>
         </div>
       </div>
-
-      {/* Stats Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
         <SummaryCard
           title="Toplam Kanıt"
@@ -74,7 +71,6 @@ export default function Home() {
         />
       </div>
 
-      {/* Timeline */}
       <div className="space-y-8">
         <h3 className="text-xl font-black flex items-center gap-2 uppercase tracking-tight">
           <Clock className="text-primary" /> Olay Akışı

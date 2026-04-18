@@ -8,13 +8,13 @@ import { MessageCircle, User, Activity } from "lucide-react";
 import MessageThreadView from "../components/views/MessageThreadView";
 import EventDetailView from "../components/views/EventDetailView";
 import { getEventIcon } from "../utils/eventHelpers";
+import { getEventDescription } from "../utils/eventHelpers";
 
 export default function PersonDetail() {
   const { name } = useParams();
   const decodedName = decodeURIComponent(name);
   const { events, isLoading, error } = useAppStore();
 
-  // Kişiye özel olayları filtrele (Normalize edilmiş isim üzerinden güvenli eşleşme)
   const personEvents = useMemo(() => {
     return events.filter((ev) => {
       const allNamesInEvent = [
@@ -31,7 +31,6 @@ export default function PersonDetail() {
     });
   }, [events, decodedName]);
 
-  // Mesajlaştığı kişileri çıkar
   const contacts = useMemo(() => {
     const contactSet = new Set();
     personEvents.forEach((ev) => {
@@ -53,27 +52,6 @@ export default function PersonDetail() {
     MessageThreadView.open(thread, decodedName, contactName);
   };
 
-  const getCustomDescription = (ev) => {
-    switch (ev.type) {
-      case "checkins":
-        return `${ev.location} konumuna giriş yaptı.`;
-      case "messages":
-        return ev.senderName === decodedName
-          ? `${ev.recipientName} kişisine mesaj gönderdi.`
-          : `${ev.senderName} kişisinden mesaj aldı.`;
-      case "sightings":
-        return `${ev.seenWith} ile ${ev.location} civarında görüldü.`;
-      case "notes":
-        return ev.authorName === decodedName
-          ? `Sistemde kendi adına not paylaştı.`
-          : `Dosyasına yeni bir not eklendi.`;
-      case "tips":
-        return `Şüpheli sıfatıyla ihbar edildi.`;
-      default:
-        return "Aktivite kaydedildi.";
-    }
-  };
-
   return (
     <PageLayout
       title={decodedName}
@@ -83,7 +61,6 @@ export default function PersonDetail() {
       error={error}
     >
       <div className="flex flex-col lg:flex-row gap-12">
-        {/* SOL PANEL: Profil Bilgisi */}
         <div className="w-full lg:w-1/3 space-y-8">
           <div className="relative group">
             <div className="absolute inset-0 bg-primary/10 blur-2xl rounded-full group-hover:bg-primary/20 transition-all" />
@@ -130,7 +107,6 @@ export default function PersonDetail() {
           )}
         </div>
 
-        {/* SAĞ PANEL: Kişiye Özel Timeline */}
         <div className="w-full lg:w-2/3 space-y-6">
           <h3 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2 px-1">
             <User size={16} /> Dosya Geçmişi
@@ -156,7 +132,7 @@ export default function PersonDetail() {
 
                   <HorizontalCard
                     title={`${label}: ${ev.location}`}
-                    description={getCustomDescription(ev)}
+                    description={getEventDescription(ev, "person", decodedName)}
                     buttonText="KANIT"
                     onButtonClick={() => EventDetailView.open(ev)}
                   />

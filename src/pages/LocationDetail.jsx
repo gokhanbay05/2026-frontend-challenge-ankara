@@ -7,6 +7,7 @@ import Button from "../components/ui/Button";
 import { Users, Activity, MapPin } from "lucide-react";
 import EventDetailView from "../components/views/EventDetailView";
 import { getEventIcon } from "../utils/eventHelpers";
+import { getEventDescription } from "../utils/eventHelpers";
 
 export default function LocationDetail() {
   const { name } = useParams();
@@ -14,12 +15,10 @@ export default function LocationDetail() {
   const { events, isLoading, error } = useAppStore();
   const navigate = useNavigate();
 
-  // 1. Bu lokasyondaki olayları filtrele
   const locationEvents = useMemo(() => {
     return events.filter((ev) => ev.location === decodedName);
   }, [events, decodedName]);
 
-  // 2. Lokasyondaki benzersiz ziyaretçileri çıkar
   const visitors = useMemo(() => {
     const visitorSet = new Set();
     locationEvents.forEach((ev) => {
@@ -38,24 +37,6 @@ export default function LocationDetail() {
     return Array.from(visitorSet);
   }, [locationEvents]);
 
-  // Lokasyon odaklı açıklama metinleri
-  const getLocationContextDescription = (ev) => {
-    switch (ev.type) {
-      case "checkins":
-        return `${ev.personName} bu konuma giriş yaptı.`;
-      case "messages":
-        return `${ev.senderName} kişisinden ${ev.recipientName} kişisine mesaj iletildi.`;
-      case "sightings":
-        return `${ev.personName} ve ${ev.seenWith} burada yan yana görüldü.`;
-      case "notes":
-        return `${ev.authorName} mekanla ilgili bir not düştü: "${ev.note}"`;
-      case "tips":
-        return `${ev.suspectName} hakkında bu konumdan ihbar yapıldı.`;
-      default:
-        return "Aktivite kaydedildi.";
-    }
-  };
-
   return (
     <PageLayout
       title={decodedName}
@@ -65,7 +46,6 @@ export default function LocationDetail() {
       error={error}
     >
       <div className="flex flex-col lg:flex-row gap-12">
-        {/* SOL PANEL: Mekan Özeti ve Ziyaretçiler */}
         <div className="w-full lg:w-1/3 space-y-8">
           <div className="relative group">
             <div className="absolute inset-0 bg-primary/10 blur-2xl rounded-full group-hover:bg-primary/20 transition-all" />
@@ -110,7 +90,6 @@ export default function LocationDetail() {
           </div>
         </div>
 
-        {/* SAĞ PANEL: Mekan Timeline */}
         <div className="w-full lg:w-2/3 space-y-6">
           <h3 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2 px-1">
             <Activity size={16} /> Mekan İzleri
@@ -136,7 +115,7 @@ export default function LocationDetail() {
 
                   <HorizontalCard
                     title={`${label} Kaydı`}
-                    description={getLocationContextDescription(ev)}
+                    description={getEventDescription(ev, "location")}
                     buttonText="KANIT"
                     onButtonClick={() => EventDetailView.open(ev)}
                   />

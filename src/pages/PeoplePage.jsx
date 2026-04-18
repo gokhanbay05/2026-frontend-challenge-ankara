@@ -9,13 +9,13 @@ import Select from "../components/ui/Select";
 import EmptyState from "../components/ui/EmptyState";
 
 const SORT_OPTIONS = [
-  { label: "Alfabetik (A-Z)", value: "alpha" },
   { label: "En Çok Kayıt", value: "activity" },
+  { label: "Alfabetik (A-Z)", value: "alpha" },
 ];
 
 export default function PeoplePage() {
   const { people, events, isLoading, error, fetchData } = useAppStore();
-  const [sortBy, setSortBy] = useState("alpha");
+  const [sortBy, setSortBy] = useState("activity");
   const navigate = useNavigate();
 
   const { searchValue, debouncedValue, handleSearchChange } = useUrlSearch(
