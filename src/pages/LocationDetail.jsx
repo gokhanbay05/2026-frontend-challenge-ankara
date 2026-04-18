@@ -40,7 +40,7 @@ export default function LocationDetail() {
   return (
     <PageLayout
       title={decodedName}
-      description="Lokasyon Bazlı Faaliyet ve Ziyaretçi Analizi"
+      description="Location-Based Activity and Visitor Analysis"
       showBackButton={true}
       loading={isLoading}
       error={error}
@@ -57,14 +57,14 @@ export default function LocationDetail() {
                 {decodedName}
               </h2>
               <div className="flex items-center gap-2 mt-2 px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase rounded-full">
-                <Activity size={12} /> {locationEvents.length} Toplam Kayıt
+                <Activity size={12} /> {locationEvents.length} Total Records
               </div>
             </div>
           </div>
 
           <div className="space-y-4">
             <h3 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2 px-1">
-              <Users size={16} /> Tespit Edilen Kişiler
+              <Users size={16} /> Detected People
             </h3>
             <div className="grid gap-2">
               {visitors.map((visitor, idx) => (
@@ -92,7 +92,7 @@ export default function LocationDetail() {
 
         <div className="w-full lg:w-2/3 space-y-6">
           <h3 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2 px-1">
-            <Activity size={16} /> Mekan İzleri
+            <Activity size={16} /> Location Tracks
           </h3>
 
           <div className="relative border-l-2 border-border/50 ml-4 pl-8 space-y-8">
@@ -109,14 +109,14 @@ export default function LocationDetail() {
                       {ev.timestamp}
                     </span>
                     <span className="text-[10px] font-bold text-muted-foreground uppercase">
-                      Kayıt ID: {ev.id}
+                      Record ID: {ev.id}
                     </span>
                   </div>
 
                   <HorizontalCard
-                    title={`${label} Kaydı`}
+                    title={`${label} Record`}
                     description={getEventDescription(ev, "location")}
-                    buttonText="KANIT"
+                    buttonText="EVIDENCE"
                     onButtonClick={() => EventDetailView.open(ev)}
                   />
                 </div>

@@ -29,8 +29,8 @@ export default function LocationsPage() {
 
   return (
     <PageLayout
-      title="Mekanlar & Olay Yerleri"
-      description="Soruşturma dosyasında adı geçen tüm lokasyonları harita öncesi inceleyin."
+      title="Locations & Crime Scenes"
+      description="Inspect all locations mentioned in the investigation file before mapping."
       loading={isLoading}
       error={error}
       onRetry={fetchData}
@@ -38,7 +38,7 @@ export default function LocationsPage() {
         <SearchBar
           value={searchValue}
           onChange={(e) => handleSearchChange(e.target.value)}
-          placeholder="Mekan ara..."
+          placeholder="Search location..."
         />
       }
     >
@@ -48,9 +48,9 @@ export default function LocationsPage() {
             <Card
               key={idx}
               title={location}
-              description="Bu mekanda en az bir olay (check-in, mesaj, gözlem) kaydedilmiş."
+              description="At least one event (check-in, message, sighting) was recorded at this location."
               image={`https://placehold.co/600x400/1e1e2e/a6adc8/png?text=${encodeURIComponent(location)}`}
-              buttonText="Mekanı İncele"
+              buttonText="Inspect Location"
               bVariant="secondary"
               onButtonClick={() =>
                 navigate(`/location/${encodeURIComponent(location)}`)
@@ -60,8 +60,8 @@ export default function LocationsPage() {
         </div>
       ) : (
         <EmptyState
-          title="Mekan bulunamadı"
-          message={`"${debouncedValue}" aramasıyla eşleşen bir olay yeri kaydı yok.`}
+          title="Location not found"
+          message={`No location record matching "${debouncedValue}" was found.`}
         />
       )}
     </PageLayout>

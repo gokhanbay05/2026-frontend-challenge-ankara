@@ -9,8 +9,8 @@ import Select from "../components/ui/Select";
 import EmptyState from "../components/ui/EmptyState";
 
 const SORT_OPTIONS = [
-  { label: "En Çok Kayıt", value: "activity" },
-  { label: "Alfabetik (A-Z)", value: "alpha" },
+  { label: "Most Active", value: "activity" },
+  { label: "Alphabetical (A-Z)", value: "alpha" },
 ];
 
 export default function PeoplePage() {
@@ -55,8 +55,8 @@ export default function PeoplePage() {
 
   return (
     <PageLayout
-      title="Şüpheliler & Kişiler"
-      description="Soruşturma ağındaki tüm aktörler ve faaliyet yoğunlukları."
+      title="Suspects & People"
+      description="All actors in the investigation network and their activity intensity."
       loading={isLoading}
       error={error}
       onRetry={fetchData}
@@ -66,7 +66,7 @@ export default function PeoplePage() {
           <SearchBar
             value={searchValue}
             onChange={(e) => handleSearchChange(e.target.value)}
-            placeholder="İsim ara..."
+            placeholder="Search name..."
           />
         </div>
       }
@@ -81,9 +81,9 @@ export default function PeoplePage() {
               <Card
                 key={idx}
                 title={person}
-                description={`${activityCount} adet soruşturma kaydı bulundu.`}
+                description={`${activityCount} investigation records found.`}
                 image={`https://api.dicebear.com/7.x/avataaars/svg?seed=${person}`}
-                buttonText="İncele"
+                buttonText="Inspect"
                 onButtonClick={() =>
                   navigate(`/person/${encodeURIComponent(person)}`)
                 }
@@ -93,8 +93,8 @@ export default function PeoplePage() {
         </div>
       ) : (
         <EmptyState
-          title="Sonuç Yok"
-          message={`"${debouncedValue}" aramasıyla eşleşen bir kayıt bulunamadı.`}
+          title="No Results"
+          message={`No record matching "${debouncedValue}" was found.`}
         />
       )}
     </PageLayout>

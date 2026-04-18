@@ -12,7 +12,7 @@ export default function EventDetailView({ event }) {
           <Icon size={24} />
         </div>
         <div>
-          <h4 className="font-bold text-lg leading-none">{label} Kaydı</h4>
+          <h4 className="font-bold text-lg leading-none">{label} Record</h4>
           <p className="text-xs text-muted-foreground mt-1">ID: {event.id}</p>
         </div>
       </div>
@@ -20,13 +20,13 @@ export default function EventDetailView({ event }) {
       <div className="grid grid-cols-2 gap-4">
         <div className="p-3 bg-muted/20 border border-border/40 rounded-lg">
           <p className="text-[10px] uppercase font-black opacity-50 tracking-wider mb-1">
-            Zaman
+            Time
           </p>
           <p className="text-sm font-semibold">{event.timestamp}</p>
         </div>
         <div className="p-3 bg-muted/20 border border-border/40 rounded-lg">
           <p className="text-[10px] uppercase font-black opacity-50 tracking-wider mb-1">
-            Konum
+            Location
           </p>
           <p className="text-sm font-semibold">{event.location}</p>
         </div>
@@ -34,14 +34,14 @@ export default function EventDetailView({ event }) {
 
       <div className="space-y-2">
         <p className="text-[10px] uppercase font-black opacity-50 tracking-wider px-1">
-          Ham Veri / Notlar
+          Raw Data / Notes
         </p>
         <div className="p-4 bg-background border border-border rounded-ui italic text-sm leading-relaxed shadow-inner">
           "
           {event.note ||
             event.text ||
             event.tip ||
-            "Soruşturma notu bulunamadı."}
+            "No investigation note found."}
           "
         </div>
       </div>
@@ -54,7 +54,7 @@ export default function EventDetailView({ event }) {
               : "bg-blue-500/10 border-blue-500/20 text-blue-500"
           }`}
         >
-          Öncelik: {event.urgency}
+          Priority: {event.urgency}
         </div>
       )}
     </div>
@@ -64,5 +64,5 @@ export default function EventDetailView({ event }) {
 EventDetailView.open = (event) => {
   const { openModal } = useModalStore.getState();
   const { label } = getEventIcon(event.type);
-  openModal(`${label} Analizi`, <EventDetailView event={event} />);
+  openModal(`${label} Analysis`, <EventDetailView event={event} />);
 };

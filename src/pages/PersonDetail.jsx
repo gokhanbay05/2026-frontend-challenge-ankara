@@ -55,7 +55,7 @@ export default function PersonDetail() {
   return (
     <PageLayout
       title={decodedName}
-      description="Şüpheli Profil ve İlişki Analizi"
+      description="Suspect Profile and Relationship Analysis"
       showBackButton={true}
       loading={isLoading}
       error={error}
@@ -74,7 +74,7 @@ export default function PersonDetail() {
                 {decodedName}
               </h2>
               <div className="flex items-center gap-2 mt-2 px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase rounded-full">
-                <Activity size={12} /> {personEvents.length} Kayıtlı İz
+                <Activity size={12} /> {personEvents.length} Footprints Recorded
               </div>
             </div>
           </div>
@@ -82,7 +82,7 @@ export default function PersonDetail() {
           {contacts.length > 0 && (
             <div className="space-y-4">
               <h3 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2 px-1">
-                <MessageCircle size={16} /> İletişim Ağı
+                <MessageCircle size={16} /> Contact Network
               </h3>
               <div className="grid gap-2">
                 {contacts.map((contact, idx) => (
@@ -109,7 +109,7 @@ export default function PersonDetail() {
 
         <div className="w-full lg:w-2/3 space-y-6">
           <h3 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2 px-1">
-            <User size={16} /> Dosya Geçmişi
+            <User size={16} /> Dossier History
           </h3>
 
           <div className="relative border-l-2 border-border/50 ml-4 pl-8 space-y-8">
@@ -133,7 +133,7 @@ export default function PersonDetail() {
                   <HorizontalCard
                     title={`${label}: ${ev.location}`}
                     description={getEventDescription(ev, "person", decodedName)}
-                    buttonText="KANIT"
+                    buttonText="EVIDENCE"
                     onButtonClick={() => EventDetailView.open(ev)}
                   />
                 </div>

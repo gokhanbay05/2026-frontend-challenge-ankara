@@ -25,7 +25,7 @@ export default function MessageThreadView({ thread, ownerName }) {
             </div>
             {msg.urgency === "high" && (
               <span className="text-[10px] text-destructive mt-1 font-bold uppercase tracking-tighter">
-                Acil İleti
+                Urgent Message
               </span>
             )}
           </div>

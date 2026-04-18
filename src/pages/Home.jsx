@@ -33,39 +33,39 @@ export default function Home() {
       <div className="relative mb-12 rounded-ui overflow-hidden bg-primary text-primary-foreground p-8 md:p-12 shadow-2xl">
         <div className="relative z-10 space-y-4">
           <span className="bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest animate-pulse">
-            Canlı Soruşturma
+            Live Investigation
           </span>
           <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase">
-            Vaka: Podo Kayıp
+            Case: Missing Podo
           </h1>
           <p className="max-w-xl text-primary-foreground/70 italic font-medium leading-relaxed">
-            Dijital ayak izlerini takip et, ipuçlarını birleştir ve gerçeği
-            ortaya çıkar.
+            Follow the digital footprints, put the clues together and uncover
+            the truth.
           </p>
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
         <SummaryCard
-          title="Toplam Kanıt"
+          title="Total Evidence"
           value={stats?.total}
           icon={StickyNote}
           colorClass="text-blue-500"
         />
         <SummaryCard
-          title="Son Bilinen Konum"
+          title="Last Known Location"
           value={stats?.lastLoc}
           icon={MapPin}
           colorClass="text-red-500"
         />
         <SummaryCard
-          title="Vaka Önceliği"
-          value="Kritik"
+          title="Case Priority"
+          value="Critical"
           icon={AlertCircle}
           colorClass="text-amber-500"
         />
         <SummaryCard
-          title="Mevcut Durum"
-          value="Aranıyor"
+          title="Current Status"
+          value="Wanted"
           icon={UserSearch}
           colorClass="text-primary"
         />
@@ -73,7 +73,7 @@ export default function Home() {
 
       <div className="space-y-8">
         <h3 className="text-xl font-black flex items-center gap-2 uppercase tracking-tight">
-          <Clock className="text-primary" /> Olay Akışı
+          <Clock className="text-primary" /> Event Timeline
         </h3>
         <div className="relative border-l-2 border-primary/20 ml-6 pl-8 space-y-6 py-2">
           {events.map((ev, idx) => {
@@ -86,7 +86,7 @@ export default function Home() {
                 <HorizontalCard
                   title={`${label}: ${ev.location}`}
                   description={getEventDescription(ev)}
-                  buttonText="İNCELE"
+                  buttonText="INSPECT"
                   onButtonClick={() => EventDetailView.open(ev)}
                 />
               </div>
